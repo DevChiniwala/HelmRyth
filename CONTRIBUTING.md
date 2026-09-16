@@ -47,7 +47,7 @@ node scripts/check-brand-residue.mjs
 
 - Keep the harness portable.
 - Keep macOS-only code behind platform guards.
-- Keep the docs build light-first and free of inherited marketing assets.
+- Keep the docs build light-first and free of heavy marketing assets.
 - Do not commit generated build output unless the workflow explicitly requires it.
 
 ## Before you open a pull request

@@ -87,8 +87,8 @@ describe("configuration boundaries", () => {
     });
   });
 
-  it("creates Helmryth storage without moving another product's data", () => {
-    const legacyDir = join(dirname(DATA_DIR), ".another-product");
+  it("creates Helmryth storage without moving a sibling directory's data", () => {
+    const legacyDir = join(dirname(DATA_DIR), ".sibling-app");
     const marker = join(legacyDir, "keep-me.txt");
     rmSync(DATA_DIR, { recursive: true, force: true });
     rmSync(legacyDir, { recursive: true, force: true });

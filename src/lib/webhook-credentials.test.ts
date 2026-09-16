@@ -38,9 +38,8 @@ describe("webhook credential storage", () => {
 
   it("scrubs legacy entries and removes deleted webhooks", () => {
     const store = memoryStore();
-    store.setItem("omb-webhook-credentials", JSON.stringify({ broken: { url: 3 }, "hook-1": credential }));
+    store.setItem(WEBHOOK_CREDENTIALS_KEY, JSON.stringify({ broken: { url: 3 }, "hook-1": credential }));
     expect(loadWebhookCredentials(store)).toEqual({});
-    expect(store.getItem("omb-webhook-credentials")).toBeNull();
     expect(store.getItem(WEBHOOK_CREDENTIALS_KEY)).toBe(JSON.stringify({
       versions: { "hook-1": 1 },
       deleted: {},

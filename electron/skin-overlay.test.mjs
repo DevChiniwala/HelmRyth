@@ -17,7 +17,7 @@ describe("native Helmryth chrome", () => {
     expect(SKIN_CHROME.helmryth.symbolColor).toMatch(/^#[0-9a-fA-F]{6}$/);
   });
 
-  it("decodes inherited ids without re-exposing their themes", () => {
+  it("decodes legacy skin ids without re-exposing their themes", () => {
     for (const legacy of ["midnight", "atelier", "foundry", "lagoon"]) {
       expect(isKnownSkin(legacy)).toBe(true);
       expect(skinChrome(legacy)).toEqual(SKIN_CHROME.helmryth);

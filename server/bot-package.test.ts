@@ -79,7 +79,7 @@ describe("bot packages", () => {
   it("accepts only this product's version marker in exported Markdown", () => {
     // The exported playbook is a public artifact — a user downloads it and
     // shares it — so it names this product, and only this product, on both
-    // write and read. No predecessor spelling is honoured.
+    // write and read. No other spelling is honoured.
     const markdown = renderBotPackageMarkdown(parseBotPackage(validPackage));
     expect(markdown).toContain("helmrythPackage: 1");
     expect(isBotPackage(markdown)).toBe(true);

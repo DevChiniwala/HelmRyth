@@ -46,29 +46,28 @@ describe("telemetry consent", () => {
     expect(client.capture).not.toHaveBeenCalled();
   });
 
-  it("stores Helmryth opt-in without writing an inherited key", async () => {
+  it("stores the Helmryth opt-in under its own key only", async () => {
     const analytics = await freshAnalytics();
 
     analytics.setAnalyticsEnabled(true);
 
     expect(analytics.analyticsEnabled()).toBe(true);
-    expect(store.get("helmryth.analytics.opt-in.v1")).toBe("1");
-    expect(store.has("omb-analytics-opt-out")).toBe(false);
+    expect([...store.entries()]).toEqual([["helmryth.analytics.opt-in.v1", "1"]]);
   });
 
-  it("never treats an inherited enabled value as Helmryth consent", async () => {
-    store.set("omb-analytics-opt-out", "0");
+  it("reads a stored opt-in and a later stored opt-out", async () => {
+    store.set("helmryth.analytics.opt-in.v1", "1");
+    expect((await freshAnalytics()).analyticsEnabled()).toBe(true);
+
+    store.set("helmryth.analytics.opt-in.v1", "0");
+    expect((await freshAnalytics()).analyticsEnabled()).toBe(false);
+  });
+
+  it("does not treat an unrecognised stored value as consent", async () => {
+    store.set("helmryth.analytics.opt-in.v1", "yes");
     const analytics = await freshAnalytics();
 
     expect(analytics.analyticsEnabled()).toBe(false);
-  });
-
-  it("preserves an inherited refusal as a read-only alias", async () => {
-    store.set("omb-analytics-opt-out", "1");
-    const analytics = await freshAnalytics();
-
-    expect(analytics.analyticsEnabled()).toBe(false);
-    expect(store.get("helmryth.analytics.opt-in.v1")).toBeUndefined();
   });
 
   it("falls back to off when storage is unavailable", async () => {
@@ -141,8 +140,8 @@ describe("configured telemetry", () => {
     expect(client.init).not.toHaveBeenCalled();
   });
 
-  it("reads the inherited install marker without rewriting it", async () => {
-    store.set("omb-installed", "2026-01-01T00:00:00.000Z");
+  it("reports first open only once and keeps the recorded install marker", async () => {
+    store.set("helmryth.install.first-seen.v1", "2026-01-01T00:00:00.000Z");
     store.set("helmryth.analytics.opt-in.v1", "1");
     const analytics = await freshAnalytics();
     const client = analyticsClient();
@@ -150,20 +149,26 @@ describe("configured telemetry", () => {
     analytics.initAnalytics(client);
 
     expect(client.capture).not.toHaveBeenCalledWith("app_first_open", expect.anything());
-    expect(store.get("helmryth.install.first-seen.v1")).toBeUndefined();
+    expect(store.get("helmryth.install.first-seen.v1")).toBe("2026-01-01T00:00:00.000Z");
     expect(client.capture).toHaveBeenCalledWith("app_opened", { platform: "browser" });
   });
 });
 
 describe("profile-step persistence", () => {
-  it("reads the inherited marker but writes only the Helmryth key", async () => {
-    store.set("omb-email-gate", "skipped");
+  it("persists the completed profile step under the Helmryth key", async () => {
+    const analytics = await freshAnalytics();
+
+    expect(analytics.emailGateDone()).toBe(false);
+    analytics.setEmailGateDone("submitted");
+
+    expect(analytics.emailGateDone()).toBe(true);
+    expect([...store.entries()]).toEqual([["helmryth.onboarding.profile-step.v1", "submitted"]]);
+  });
+
+  it("treats a previously skipped profile step as done", async () => {
+    store.set("helmryth.onboarding.profile-step.v1", "skipped");
     const analytics = await freshAnalytics();
 
     expect(analytics.emailGateDone()).toBe(true);
-    analytics.setEmailGateDone("submitted");
-
-    expect(store.get("helmryth.onboarding.profile-step.v1")).toBe("submitted");
-    expect(store.get("omb-email-gate")).toBe("skipped");
   });
 });

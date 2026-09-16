@@ -20,10 +20,10 @@ describe("pickOperatorName", () => {
     expect(pickOperatorName([...roster, "Rivet 2"])).toBe("Cairn 2");
   });
 
-  it("contains none of the inherited pet, food, or generic agent names", () => {
-    const inherited = new Set(["scout", "atlas", "nova", "sage", "pixel", "pesto", "miso", "mochi"]);
+  it("contains none of the retired pet, food, or generic agent names", () => {
+    const retired = new Set(["scout", "atlas", "nova", "sage", "pixel", "pesto", "miso", "mochi"]);
     const generated: string[] = [];
     for (let index = 0; index < 32; index += 1) generated.push(pickOperatorName(generated));
-    expect(generated.some((name) => inherited.has(name.toLowerCase()))).toBe(false);
+    expect(generated.some((name) => retired.has(name.toLowerCase()))).toBe(false);
   });
 });

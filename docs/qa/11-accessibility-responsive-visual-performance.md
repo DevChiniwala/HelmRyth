@@ -10,7 +10,7 @@ This document is the cross-cutting quality contract for every rendered Helmryth 
 | Primary component surfaces | `79` component files under `src/components` spanning onboarding, roster, workstreams, settings, operations, Workbenches, voice, mobile, and update states |
 | Docs-facing web surface | `apps/docs` Next.js app, plus public marketing and help copy consumed from root `docs/` |
 | Required viewport set | `390x844`, `768x1024`, `1440x900`, plus browser zoom `200%` on desktop |
-| Light-theme contract | Helmryth is light-first only; dark fallback, inherited legacy palette, or unstyled flashes fail release (`DESIGN.md`, `src/lib/skins.ts`, `src/styles.css`) |
+| Light-theme contract | Helmryth is light-first only; dark fallback, off-palette colors, or unstyled flashes fail release (`DESIGN.md`, `src/lib/skins.ts`, `src/styles.css`) |
 | Existing automated evidence | `pnpm check:contrast`, `src/lib/skins.test.ts`, `src/lib/desktop.test.ts`, `src/lib/bottom-follow.test.ts`, `src/lib/inspector.test.ts`, `src/lib/local-computer.test.ts`, `src/lib/screen-preview.test.ts`, `src/components/*` tests covering modal state, rename, engine setup, phone status, routines page, and cards |
 
 ## Executed browser evidence on August 30, 2026
@@ -65,7 +65,7 @@ Every rendered case in `01` through `06` must additionally satisfy the following
 2. No critical control, heading, card, message, drawer, dialog, or footer action clips or requires horizontal page scrolling at `390px`.
 3. Focus always enters overlays, remains trapped while the overlay is modal, and returns to the opener on close.
 4. Reduced-motion users still receive status and progress through text, shape, or iconography; decorative movement is optional and must never carry sole meaning.
-5. Light-theme tokens, fonts, sigils, empty states, live regions, and error copy stay Helmryth-branded and free of pre-rebrand vocabulary.
+5. Light-theme tokens, fonts, sigils, empty states, live regions, and error copy stay Helmryth-branded and free of off-brand vocabulary.
 6. Search, transcript paging, SSE hydration, screen-preview refresh, mobile-state refresh, and update-state polling do not produce layout thrash, duplicate live announcements, or stale focus jumps.
 7. Renderer errors fail visibly and recoverably. No raw stack trace, JSON blob, or console-only failure is acceptable for a user-facing state.
 
@@ -83,7 +83,7 @@ Every rendered case in `01` through `06` must additionally satisfy the following
 | `AX-008` | Browser, Host, Isolated, Local VM, Remote, Box, VPS, and split Workbenches | Embedded viewers, panes, overlays, and held-control states preserve a visible controller and clear fail-closed copy; keyboard escape routes remain intact even when a native surface steals pointer focus | `05-workbenches-browser-host-isolated-remote.md`, `src/lib/local-vm-workspace.test.ts`, `src/lib/vps-computer.test.ts`, `electron/desktop-viewer.node-test.mjs`, executed screenshot `output/playwright/operator-workbench-1440.png` | `P0` |
 | `AX-009` | Voice, mobile, Android, iOS, and pairing states | Microphone prompts, transcription state, pairing status, expiry, QR/manual-code fallbacks, and device revocation remain readable, named, and recoverable on small screens | `06-voice-mobile-relay-android-ios.md`, `src/lib/push-to-talk.test.ts`, `src/lib/live-activity.test.ts`, `companion/test/control.test.ts` | `P0` |
 | `AX-010` | Update banner and release-status copy | Idle, checking, downloading, downloaded, and error states are visible and announced without requiring animation; updater absence in dev is silent and fail-closed | `01-desktop-shell-onboarding-roster.md` `UP-*`, `electron/updater-coordinator.node-test.mjs`, `electron/update-channel.node-test.mjs` | `P0` |
-| `AX-011` | Docs site and public help copy | Navigation, MDX content, code blocks, heading hierarchy, skip targets, and anchor links work at desktop and mobile widths; no legacy product wording remains in public docs | `pnpm docs:build`, `docs/qa/12-automated-suite-environments-and-evidence.md`, `README.md`, `docs/*.md`, `apps/docs` build checks | `P1` |
+| `AX-011` | Docs site and public help copy | Navigation, MDX content, code blocks, heading hierarchy, skip targets, and anchor links work at desktop and mobile widths; no off-brand wording remains in public docs | `pnpm docs:build`, `docs/qa/12-automated-suite-environments-and-evidence.md`, `README.md`, `docs/*.md`, `apps/docs` build checks | `P1` |
 
 ## Keyboard, focus, and screen-reader contract
 
@@ -110,9 +110,9 @@ Every rendered case in `01` through `06` must additionally satisfy the following
 
 | ID | Surface | Expected result | Evidence | Priority |
 |---|---|---|---|---|
-| `AX-VIS-001` | Theme and token application | All surfaces use Helmryth light tokens, type families, and sigil/mark usage defined by `DESIGN.md`; no inherited dark treatment appears during launch or route changes | `DESIGN.md`, `src/styles.css`, `src/lib/skins.test.ts`, executed screenshots across `output/playwright/*.png`, manual cold-start recording | `P0` |
+| `AX-VIS-001` | Theme and token application | All surfaces use Helmryth light tokens, type families, and sigil/mark usage defined by `DESIGN.md`; no dark treatment appears during launch or route changes | `DESIGN.md`, `src/styles.css`, `src/lib/skins.test.ts`, executed screenshots across `output/playwright/*.png`, manual cold-start recording | `P0` |
 | `AX-VIS-002` | Contrast and non-text cues | Text contrast stays `>= 4.5:1`; focus rings and meaningful UI strokes stay `>= 3:1`; badge-only states also expose text, shape, or icon differentiation | `pnpm check:contrast` and owning domain screenshots | `P0` |
-| `AX-VIS-003` | Vocabulary and naming | All user-facing copy, alt labels, notifications, diagnostics headings, and updater labels use Helmryth vocabulary; no inherited pre-Helmryth product residue remains | `pnpm check:brand`, manual copy audit across `01` through `06`, `README.md`, `docs/*.md` | `P0` |
+| `AX-VIS-003` | Vocabulary and naming | All user-facing copy, alt labels, notifications, diagnostics headings, and updater labels use Helmryth vocabulary; no off-brand vocabulary remains | `pnpm check:brand`, manual copy audit across `01` through `06`, `README.md`, `docs/*.md` | `P0` |
 | `AX-VIS-004` | Empty/loading/error/success differentiation | Empty states, loaders, transient banners, denied states, and recoveries are visually distinct and cannot be confused when color is removed or screen capture is grayscale | Domain screenshots, `UP-*`, `OB-*`, `WS-*`, `WB-*` cases | `P1` |
 
 ## Motion and reduced-motion contract

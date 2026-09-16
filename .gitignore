@@ -73,11 +73,8 @@ coverage/
 *.keystore
 *.mobileprovision
 
-# Internal rebrand reference captures. These are screen recordings of the
-# pre-rebrand product — old shell, old mascot sigils, old "bot" vocabulary, and
-# a collaborator's name in the sidebar. Nothing in the tree links to them, and
-# publishing them would put the retired identity back into the public repo.
-# Kept on disk as internal evidence; never committed.
+# Internal screen-recording captures. Nothing in the tree links to them; they
+# stay on disk only and are never committed.
 docs/internal-provenance/
 
 # --- Local tooling state ----------------------------------------------------

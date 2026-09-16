@@ -26,8 +26,8 @@ The app is native Swift and uses XcodeGen; EAS commands do not apply.
 - Copy the localized text from `en-US/`.
 - Use `privacy-answers.md` and verify it still matches the binary.
 - Use `review-notes.md`, adding a real review contact in App Store Connect.
-- Support URL: required owner-controlled production URL. Do not submit with a placeholder or inherited repository link.
-- Privacy policy URL: required owner-controlled production URL. Do not submit with a placeholder or inherited repository link. For local review, use `docs/ios-privacy.md`.
+- Support URL: required owner-controlled production URL. Do not submit with a placeholder or unowned repository link.
+- Privacy policy URL: required owner-controlled production URL. Do not submit with a placeholder or unowned repository link. For local review, use `docs/ios-privacy.md`.
 - Choose manual release for 1.0; enable a phased release after the first production build is stable.
 
 The protected workflow `.github/workflows/release-ios.yml` now fails closed before archive unless the Apple team ID, bundle IDs, App Store Connect API key, Apple Distribution certificate, and both App Store provisioning profiles are present in the `release-production` environment. The unsigned simulator CI still proves compilation only; the release lane is the archive/export/upload path.

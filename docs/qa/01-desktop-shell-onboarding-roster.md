@@ -1,6 +1,6 @@
 # Desktop shell, onboarding, and roster QA plan
 
-This document is the release contract for the Helmryth desktop shell, first-run onboarding, roster navigation, search and command switching, crew creation/import, archive recovery, and update entry points. It is derived from the rendered implementation rather than screenshots or inherited product assumptions.
+This document is the release contract for the Helmryth desktop shell, first-run onboarding, roster navigation, search and command switching, crew creation/import, archive recovery, and update entry points. It is derived from the rendered implementation rather than screenshots or assumptions.
 
 ## Scope, control census, and sources
 
@@ -185,7 +185,7 @@ Use a new disposable `HELMRYTH_DATA_DIR` or equivalent isolated application-data
 
 | ID | Surface / control | Preconditions / layout | Exact action | Expected visible, persisted, and network result | Negative, race, recovery, accessibility | Evidence | Priority |
 |---|---|---|---|---|---|---|---|
-| UP-001 | Updater availability boundary | Browser/dev, packaged without config, packaged owned config | Inspect footer/banner. | Dev/browser and unprovisioned package expose no updater control and contact no release channel; owned config exposes control. | Never infer previous-owner feed. Absence is fail-closed, not error spam. | `electron/update-channel.node-test.mjs` all 3 cases. | P0 |
+| UP-001 | Updater availability boundary | Browser/dev, packaged without config, packaged owned config | Inspect footer/banner. | Dev/browser and unprovisioned package expose no updater control and contact no release channel; owned config exposes control. | Never infer an unowned feed. Absence is fail-closed, not error spam. | `electron/update-channel.node-test.mjs` all 3 cases. | P0 |
 | UP-002 | Manual check/up-to-date | Packaged idle; no update | Activate Check for updates. | Button immediately working/disabled, updater `check()` once; checking label/spinner; idle result shows “You're up to date” check for 3s then resets. | Concurrent background/manual check coalesces and preserves manual visibility; rapid click disabled. | Updater coordinator manual/background tests. | P1 |
 | UP-003 | Available/download | Available state | Activate footer or banner Download. | Label includes version; bridge `download()` once; both surfaces become downloading; banner non-dismissible while busy. | One surface click disables the other via shared state; rejection becomes visible safe error. | Coordinator download tests. | P0 |
 | UP-004 | Download progress | Percent absent, -1, 42.4, 101 | Observe banner/footer. | Absent: Starting download with indeterminate sliver; numeric copy rounded and progress clamped 0–100; footer label matches. | Progress never moves backward because of stale background check; reduced motion retains text. | Coordinator progress/concurrency tests. | P1 |
@@ -297,7 +297,7 @@ Use a new disposable `HELMRYTH_DATA_DIR` or equivalent isolated application-data
 - **Expected persisted / network output:** Requests only to configured Helmryth release origin; downloaded artifact hash/signature match published metadata.
 - **Failure and recovery assertions:** Background events cannot downgrade download/error; retries single-flight; failed signature/staging never offers install.
 - **Accessibility assertions:** Polite status and textual progress; buttons disabled immediately; focus remains available.
-- **Security and privacy assertions:** No previous-owner feed or unsigned artifact accepted.
+- **Security and privacy assertions:** No unowned feed or unsigned artifact accepted.
 - **Cleanup / reset:** Remove disposable package/profile and retain artifact hashes.
 - **Automation mapping:** `update-channel.node-test.mjs`, `updater-coordinator.node-test.mjs`.
 - **Evidence to retain:** Release request log, artifact hash/signature, updater state timeline, before/after version screenshot.

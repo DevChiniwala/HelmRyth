@@ -12,6 +12,6 @@ The short version:
 
 Unacceptable behavior must not be reported in a public issue when a private route is needed.
 Helmryth owners must publish a Helmryth-controlled private conduct contact before public release.
-Until that exists, do not direct reports to a previous maintainer's personal email or to public
+Until that exists, do not direct reports to a personal email address or to public
 issues. Reports are handled confidentially. Maintainers may edit, remove, or reject contributions
 and comments that violate this code, and may ban repeat offenders.

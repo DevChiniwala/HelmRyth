@@ -54,17 +54,14 @@ describe("skins", () => {
     }
   });
 
-  it("migrates every legacy stored skin from either persistence key", () => {
-    for (const sourceKey of ["helmryth-skin", "omb-skin"]) {
-      for (const legacy of LEGACY_SKIN_IDS) {
-        const store = {
-          getItem: (key: string) => (key === sourceKey ? legacy : null),
-          setItem: vi.fn(),
-          removeItem: vi.fn(),
-        };
-        vi.stubGlobal("localStorage", store);
-        expect(readSkin()).toBe(DEFAULT_SKIN);
-      }
+  it("migrates every legacy stored skin", () => {
+    for (const legacy of LEGACY_SKIN_IDS) {
+      const store = {
+        getItem: (key: string) => (key === "helmryth-skin" ? legacy : null),
+        setItem: vi.fn(),
+      };
+      vi.stubGlobal("localStorage", store);
+      expect(readSkin()).toBe(DEFAULT_SKIN);
     }
   });
 });

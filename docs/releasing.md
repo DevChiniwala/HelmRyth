@@ -17,7 +17,7 @@ Set these in **Helmryth → Settings → Environments → `release-production`**
 ### 1. `HELMRYTH_RELEASE_REPO`
 
 An environment variable in `owner/repo` form that points at the release target.
-The workflow refuses to start without it and never falls back to any inherited repository.
+The workflow refuses to start without it and never falls back to a default repository.
 
 ### 2. `HELMRYTH_RELEASE_REGISTRY_ORIGIN` + `HELMRYTH_RELEASE_CONDUIT_ORIGIN`
 

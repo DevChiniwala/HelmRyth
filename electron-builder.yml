@@ -9,7 +9,7 @@ protocols:
 # Publishing is intentionally disabled until a Helmryth-owned release host,
 # signing identity, and update repository have been provisioned. Packaging
 # scripts already pass `--publish never`; omitting `publish` also prevents a
-# personal or inherited repository from being baked into installed clients.
+# personal or unowned repository from being baked into installed clients.
 # Guarded release scripts validate HELMRYTH_RELEASE_REPO and generate a private
 # temporary config that adds exactly that destination; local builds never do.
 

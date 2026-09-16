@@ -16,7 +16,7 @@ This chapter is the release gate for the Electron shell, preload bridge, native 
 - `contextIsolation` remains on and the renderer sees only `window.helmryth`.
 - Every IPC route is exercised with a valid renderer sender and an invalid or foreign sender when the handler scopes ownership.
 - Packaged artifacts must ship the built UI, compiled server, companion bundle, skills, required native helpers, and all third-party license/provenance files named in `electron-builder.yml`.
-- No package or release lane may bake a previous-owner or inherited update feed. The base `electron-builder.yml` must remain `publish`-free; release-only destinations are injected temporarily from `HELMRYTH_RELEASE_REPO`.
+- No package or release lane may bake in an update feed other than the destination supplied by `HELMRYTH_RELEASE_REPO`. The base `electron-builder.yml` must remain `publish`-free; release-only destinations are injected temporarily from `HELMRYTH_RELEASE_REPO`.
 - Every release workflow must be reproducible from one exact pinned commit across platforms.
 - Signing and notarization gates fail before publication, not after. A successful build with a broken signature or wrong update target is a release failure.
 
@@ -35,7 +35,7 @@ Treat any future GUI launch, application-data access, or unbounded wait from thi
 
 | ID | Surface / route | Trigger and setup | Expected assertions | Evidence | Priority | Execution |
 |---|---|---|---|---|---|---|
-| PKG-SHELL-001 | App identity bootstrap | Cold start in dev and packaged app | `app.setName`, process title, desktop name, app id, icon, protocol, and userData/log paths all resolve to Helmryth identity; no old product identity leaks to Dock/taskbar, desktop file, or logs | `electron/main.mjs`, packaged screenshot, `electron-builder.yml` | P0 | Manual — executable |
+| PKG-SHELL-001 | App identity bootstrap | Cold start in dev and packaged app | `app.setName`, process title, desktop name, app id, icon, protocol, and userData/log paths all resolve to Helmryth identity; no other identity leaks to Dock/taskbar, desktop file, or logs | `electron/main.mjs`, packaged screenshot, `electron-builder.yml` | P0 | Manual — executable |
 | PKG-SHELL-002 | Single-instance lock | Launch twice, deep link while running | Second launch focuses the existing window, does not start a second server, and forwards any `helmryth://install` payload to the active instance | `electron/single-instance.node-test.mjs`, deep-link smoke | P0 | Automated — passing |
 | PKG-SHELL-003 | Packaged server boot | Signed and unsigned packages, plus browser dev shell | Harness server binds a healthy port, serves `/api/health`, and identifies as Helmryth before renderer use; fallback ports remain safe when default port is occupied by another process | `electron/server-boot-probe.node-test.mjs`, workflow packaged-server smoke | P0 | Automated — passing |
 | PKG-SHELL-004 | Pending package install deep link | Launch with command-line package URL and runtime `open-url` | Valid `helmryth://install?package=<https-package-url>` payload queues and delivers once after main-frame load; invalid scheme/host/path/file type is rejected | `electron/package-link.node-test.mjs`, manual deep-link trace | P0 | Automated — passing |

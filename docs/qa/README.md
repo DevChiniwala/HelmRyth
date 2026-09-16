@@ -45,10 +45,10 @@ All domain documents follow [TEST-CASE-TEMPLATE.md](TEST-CASE-TEMPLATE.md). Requ
 
 ### P0 — release stopping
 
-- Data loss, data-directory corruption, cross-product data bleed, or unrecoverable migration.
+- Data loss, data-directory corruption, data bleed outside Helmryth storage, or unrecoverable migration.
 - Authn/authz bypass, secret disclosure, remote exposure of loopback-only control, arbitrary file access, or command injection.
 - Gate allow/deny inversion, contradictory spoken consent accepted, destructive action without explicit confirmation, or mobile revocation bypass.
-- Wrong-device input, Workbench control sent to an unseen surface, updater pointed at an inherited/untrusted repository, or package corruption.
+- Wrong-device input, Workbench control sent to an unseen surface, updater pointed at an untrusted repository, or package corruption.
 - Application cannot launch, create a first operator, open a workstream, send a direction, render a response, or recover from an interrupted run.
 
 ### P1 — supported behavior stopping
@@ -145,7 +145,7 @@ The domain documents contain atomic tests. These journeys prove that state remai
 4. Choose `Build or ship`, send a direction, observe run presence, capability activity, and final response.
 5. Restart the app and verify the Workstream, run state, model, Gate policy, and unread state persist.
 
-Expected: no old product storage is mutated; no telemetry initializes without explicit consent and an HTTPS owned endpoint; every consequential request stops at a Gate.
+Expected: no storage outside Helmryth's own data is mutated; no telemetry initializes without explicit consent and an HTTPS owned endpoint; every consequential request stops at a Gate.
 
 ### JRN-002 — crew delegation with Gate and recovery
 
@@ -187,7 +187,7 @@ Expected: no old product storage is mutated; no telemetry initializes without ex
 1. Prove missing and malformed `HELMRYTH_RELEASE_REPO` fail before packaging.
 2. Supply an owner-controlled `owner/repo`, package with `--publish never`, and verify the generated private builder config is removed.
 3. Verify `app-update.yml`, artifacts, blockmaps, hashes, licenses, and draft-release destinations.
-4. Exercise updater check, download, staging, install failure, concurrency, and rollback states without contacting an inherited endpoint.
+4. Exercise updater check, download, staging, install failure, concurrency, and rollback states without contacting an untrusted endpoint.
 
 ## Evidence retention
 

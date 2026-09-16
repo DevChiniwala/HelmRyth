@@ -23,7 +23,7 @@ production hosted service still match this repository.
   Connect definition of ephemeral processing when answering the collection
   question for the submitted build.
 - Privacy policy URL:
-  required owner-controlled production URL. Do not submit with a placeholder or inherited repository link. For local review, use `docs/ios-privacy.md`.
+  required owner-controlled production URL. Do not submit with a placeholder or unowned repository link. For local review, use `docs/ios-privacy.md`.
 
 The iOS app does not receive the hosted account's user ID or the workbench's
 hosted installation ID. Email sign-in for optional hosted access happens on the

@@ -12,12 +12,7 @@ import {
   toPosixPath,
 } from "./check-brand-residue.mjs";
 
-// The strings these cases feed the gate are the very ones it must reject, so
-// they are stored encoded rather than written out — this file ships, and a
-// plaintext fixture would put the retired identity back into the repository
-// through the test that exists to keep it out.
-const retired = (encoded) => Buffer.from(encoded, "base64").toString("utf8");
-
+const RETIRED_FORMAT_LINE = 'const format = "helmryth.team";';
 
 describe("brand residue gate scope", () => {
   it("ignores generated, dependency, and vendored directory names", () => {
@@ -38,14 +33,14 @@ describe("brand residue gate scope", () => {
   });
 
   it("skips local agent tooling state, which is gitignored and machine-specific", () => {
-    // .omc/ session caches embed this machine's absolute project path, which the
-    // old-product-name pattern matches. Scanning them fails the gate on files that
-    // exist for exactly one developer and never ship.
+    // .omc/ session caches embed this machine's absolute project path. Scanning
+    // them fails the gate on files that exist for exactly one developer and
+    // never ship.
     expect(shouldSkipDirectory(".omc")).toBe(true);
   });
 
   it("does not inspect test fixtures as public product identity", () => {
-    expect(identityFindings("src/lib/example.test.ts", [retired("Y29uc3QgdG9rZW4gPSAib21iX3BhaXJfb2xkIjs=")])).toEqual([]);
+    expect(identityFindings("src/lib/example.test.ts", [RETIRED_FORMAT_LINE])).toEqual([]);
     expect(copyFindings("ios/Tests/FleetTests.swift", ['let role = "bot"', 'let copy = "Create a bot"'])).toEqual([]);
   });
 
@@ -72,43 +67,40 @@ describe("brand residue gate scope", () => {
     ]);
   });
 
-  it("still scans QA specs for inherited product identity", () => {
-    expect(identityFindings("docs/qa/07-api.md", [retired("RG93bmxvYWQgT3Blbk1hdXNCb3Q=")])).toMatchObject([
-      { label: "old product name" },
+  it("still scans QA specs for retired Helmryth vocabulary", () => {
+    expect(identityFindings("docs/qa/07-api.md", ["Import a helmryth.team manifest"])).toMatchObject([
+      { label: "retired crew manifest format" },
     ]);
-    expect(identityFindings("docs/qa/14-execution.md", [
-      retired("UmVsZWFzZSBmcm9tIGh0dHBzOi8vZ2l0aHViLmNvbS9taWxpbmQtc29uaS9oZWxtcnl0aC1yZWxlYXNlcw=="),
-    ])).toMatchObject([
-      { label: "previous-owner runtime destination" },
+    expect(identityFindings("docs/qa/11-visual.md", ['Verify `[data-skin="midnight"]` never renders'])).toMatchObject([
+      { label: "retired dark skin selector" },
     ]);
   });
 
   it("scans our own metadata under third_party/ while retaining legal text verbatim", () => {
     // The exemption used to match the `third_party` path SEGMENT, so the whole
-    // tree went unread. A stale SBOM property namespace and a stale
-    // env var instruction both survived a rebrand the gate called
-    // clean, and the stale namespace broke verify-linux-package.mjs, which
-    // looks up `helmryth:cargo:package-id`.
+    // tree went unread. A stale SBOM property namespace survived a scan the
+    // gate called clean, and it broke verify-linux-package.mjs, which looks up
+    // `helmryth:cargo:package-id`.
     expect(identityFindings("third_party/cua-driver/SBOM.cdx.json", [
-      retired("eyAibmFtZSI6ICJvcGVubWF1c2JvdDpjYXJnbzpwYWNrYWdlLWlkIiwgInZhbHVlIjogInJlZ2lzdHJ5K3giIH0="),
-    ])).toMatchObject([{ label: "old product name" }]);
+      '{ "name": "helmryth:maintainer", "value": "someone@gmail.com" }',
+    ])).toMatchObject([{ label: "personal contact address" }]);
     expect(identityFindings("third_party/cloudflared/README.md", [
-      retired("U2V0IGBPTUJfQ0xPVURGTEFSRURfQVJDSElWRV9ESVJgIHRvIGEgZGlyZWN0b3J5IGNvbnRhaW5pbmc="),
-    ])).toMatchObject([{ label: "old environment namespace" }]);
+      "Export the crew as a helmryth.team file",
+    ])).toMatchObject([{ label: "retired crew manifest format" }]);
 
     // Retained legal text stays exempt — it is matched by file name, not by
-    // any directory it happens to sit in.
+    // any directory it happens to sit in. An author's address in a licence is
+    // attribution, not a leak.
     for (const legal of [
       "NOTICE",
       "LICENSE",
-      "LEGAL_PROVENANCE.md",
       "third_party/cua-driver/LICENSE.md",
       "third_party/cua-driver/THIRD_PARTY_NOTICES.md",
       "third_party/cua-driver/THIRD_PARTY_LICENSES.html",
       "third_party/cua-driver/Inter-OFL-1.1.txt",
       "third_party/playwright-injected/LICENSE",
     ]) {
-      expect(identityFindings(legal, [retired("Q29weXJpZ2h0IDIwMjYgTWlsaW5kIFNvbmkgYW5kIE9wZW5NYXVzQm90IGNvbnRyaWJ1dG9ycw==")]), legal).toEqual([]);
+      expect(identityFindings(legal, ["Copyright 2026 Example Author <author@gmail.com>"]), legal).toEqual([]);
     }
 
     // Vendored upstream source keeps our identity rules but not our copy rules.
@@ -137,12 +129,12 @@ describe("brand residue gate scope", () => {
     }
   });
 
-  it("still catches actual public legacy identity and previous-owner destinations", () => {
-    expect(identityFindings("README.md", [retired("RG93bmxvYWQgT3Blbk1hdXNCb3QgdG9kYXk=")])).toMatchObject([
-      { label: "old product name" },
+  it("still catches retired vocabulary in public docs and styles", () => {
+    expect(identityFindings("README.md", ["Share a helmryth.team file with your crew"])).toMatchObject([
+      { label: "retired crew manifest format" },
     ]);
-    expect(identityFindings("docs/releasing.md", [retired("aHR0cHM6Ly9naXRodWIuY29tL21pbGluZC1zb25pL2hlbG1yeXRoLXJlbGVhc2Vz")])).toMatchObject([
-      { label: "previous-owner runtime destination" },
+    expect(identityFindings("src/styles.css", ['[data-skin="midnight"] { --surface: #000; }'])).toMatchObject([
+      { label: "retired dark skin selector" },
     ]);
   });
 
@@ -177,35 +169,54 @@ describe("brand residue gate scope", () => {
 });
 
 describe("brand residue migration contracts", () => {
-  const canonicalSkinMigration = [
-    'const KEY = "helmryth-skin";',
-    'const LEGACY_KEY = "omb-skin";',
-    "store?.setItem(KEY, normalized);",
-    "store?.removeItem(LEGACY_KEY);",
+  const canonicalCrewManifest = [
+    'export const CREW_MANIFEST_FORMAT = "helmryth.crew" as const;',
+    'const LEGACY_HELMRYTH_TEAM_FORMAT = "helmryth.team" as const;',
+    "      format: CREW_MANIFEST_FORMAT,",
   ].join("\n");
 
-  it("allows an exact, named legacy alias when canonical writes and cleanup are proven", () => {
-    expect(identityFindings("src/lib/skins.ts", canonicalSkinMigration.split("\n"))).toEqual([]);
-    expect(migrationContractFindings(new Map([["src/lib/skins.ts", canonicalSkinMigration]]))).toEqual([]);
+  it("allows an exact, named legacy alias when the canonical format is proven", () => {
+    expect(identityFindings("server/team-manifest.ts", canonicalCrewManifest.split("\n"))).toEqual([]);
+    expect(migrationContractFindings(new Map([["server/team-manifest.ts", canonicalCrewManifest]]))).toEqual([]);
   });
 
   it("fails a named alias when the canonical migration is incomplete", () => {
     const findings = migrationContractFindings(new Map([
-      ["src/lib/skins.ts", 'const LEGACY_KEY = "omb-skin";'],
+      ["server/team-manifest.ts", 'const LEGACY_HELMRYTH_TEAM_FORMAT = "helmryth.team" as const;'],
     ]));
     expect(findings.some((finding) => finding.label === "incomplete legacy migration")).toBe(true);
   });
 
-  it("fails when a migration writes the inherited key", () => {
-    const findings = migrationContractFindings(new Map([
-      ["src/lib/skins.ts", `${canonicalSkinMigration}\nstore?.setItem(LEGACY_KEY, normalized);`],
-    ]));
-    expect(findings).toMatchObject([{ label: "legacy value is still written" }]);
+  it("fails when a migration writes the legacy value", () => {
+    const contract = {
+      name: "example preference migration",
+      legacyFile: "src/lib/example.ts",
+      legacy: [/example-legacy-key/],
+      canonical: [["src/lib/example.ts", /setItem\(KEY,/]],
+      forbidden: [/setItem\(LEGACY_KEY,/],
+    };
+    const source = [
+      'const KEY = "helmryth.example.v1";',
+      'const LEGACY_KEY = "example-legacy-key";',
+      "store?.setItem(KEY, value);",
+    ].join("\n");
+
+    expect(migrationContractFindings(new Map([["src/lib/example.ts", source]]), [contract])).toEqual([]);
+    expect(migrationContractFindings(
+      new Map([["src/lib/example.ts", `${source}\nstore?.setItem(LEGACY_KEY, value);`]]),
+      [contract],
+    )).toMatchObject([{ label: "legacy value is still written" }]);
   });
 
-  it("does not treat an unlisted inherited key as compatibility", () => {
-    expect(identityFindings("src/lib/cache.ts", ['const KEY = "omb-cache";'])).toMatchObject([
-      { label: "old short prefix" },
+  it("still flags a legacy value in a contract file when the line is not marked legacy", () => {
+    expect(identityFindings("server/team-manifest.ts", ['const format = "helmryth.team";'])).toMatchObject([
+      { label: "retired crew manifest format" },
+    ]);
+  });
+
+  it("does not treat an unlisted legacy value as compatibility", () => {
+    expect(identityFindings("src/lib/cache.ts", ['const LEGACY_FORMAT = "helmryth.team";'])).toMatchObject([
+      { label: "retired crew manifest format" },
     ]);
   });
 });
@@ -233,10 +244,9 @@ describe("path spelling", () => {
 
     // The same bytes under two names: exempt as this file, a finding as any
     // other. Without the second half the first proves only that nothing fires.
-    const line = retired("RG93bmxvYWQgT3Blbk1hdXNCb3Q=");
-    expect(identityFindings(SELF_NAME, [line])).toEqual([]);
-    expect(identityFindings("scripts/some-other-gate.mjs", [line])).toMatchObject([
-      { label: "old product name" },
+    expect(identityFindings(SELF_NAME, [RETIRED_FORMAT_LINE])).toEqual([]);
+    expect(identityFindings("scripts/some-other-gate.mjs", [RETIRED_FORMAT_LINE])).toMatchObject([
+      { label: "retired crew manifest format" },
     ]);
   });
 });

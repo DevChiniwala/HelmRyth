@@ -2,12 +2,8 @@ import type { WebhookCredential } from "./webhooks.js";
 import { z } from "zod";
 
 export const WEBHOOK_CREDENTIALS_KEY = "helmryth.webhook-credentials.v1";
-const LEGACY_WEBHOOK_CREDENTIALS_KEY = "omb-webhook-credentials";
 
-type Store = (
-  Pick<Storage, "getItem" | "setItem">
-  & Partial<Pick<Storage, "removeItem">>
-) | undefined;
+type Store = Pick<Storage, "getItem" | "setItem"> | undefined;
 
 export interface CachedWebhookCredential {
   credential: WebhookCredential;
@@ -156,11 +152,7 @@ function mergeEphemeralCredentials(
  * renderer memory. */
 export function loadWebhookCredentialCache(store: Store): WebhookCredentialCache {
   try {
-    const canonical = store?.getItem(WEBHOOK_CREDENTIALS_KEY);
-    const legacy = canonical === null
-      ? store?.getItem(LEGACY_WEBHOOK_CREDENTIALS_KEY)
-      : null;
-    const raw = canonical ?? legacy;
+    const raw = store?.getItem(WEBHOOK_CREDENTIALS_KEY);
     if (!raw) return mergeEphemeralCredentials(store, emptyPersistedCache());
     const decoded = JSON.parse(raw);
     const persisted = persistedCacheDocumentSchema.safeParse(decoded);
@@ -169,14 +161,12 @@ export function loadWebhookCredentialCache(store: Store): WebhookCredentialCache
     if (legacyCache.success) {
       const migrated = sanitizeLegacyCacheDocument(legacyCache.data);
       persist(store, { ...emptyCache(), ...migrated });
-      if (legacy !== null) store?.removeItem?.(LEGACY_WEBHOOK_CREDENTIALS_KEY);
       return mergeEphemeralCredentials(store, migrated);
     }
     const old = legacyDocumentSchema.safeParse(decoded);
     if (!old.success) return mergeEphemeralCredentials(store, emptyPersistedCache());
     const migrated = sanitizeLegacyDocument(old.data);
     persist(store, { ...emptyCache(), ...migrated });
-    if (legacy !== null) store?.removeItem?.(LEGACY_WEBHOOK_CREDENTIALS_KEY);
     return mergeEphemeralCredentials(store, migrated);
   } catch {
     return mergeEphemeralCredentials(store, emptyPersistedCache());

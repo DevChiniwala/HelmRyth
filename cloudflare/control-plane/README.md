@@ -137,5 +137,5 @@ pnpm --filter @helmryth/registry preflight
 pnpm --filter @helmryth/registry run deploy:production
 ```
 
-No inherited account ID, zone ID, database ID, sender domain, custom hostname,
+No account ID, zone ID, database ID, sender domain, custom hostname,
 or public endpoint is shipped by this directory.

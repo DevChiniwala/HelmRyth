@@ -22,7 +22,6 @@ export const SKINS: readonly Skin[] = [
 export const DEFAULT_SKIN: SkinId = "helmryth-light";
 
 const KEY = "helmryth-skin";
-const LEGACY_KEY = "omb-skin"; // brand-check: allow-legacy
 const LEGACY_SKIN_MAP = {
   midnight: DEFAULT_SKIN,
   atelier: DEFAULT_SKIN,
@@ -56,7 +55,7 @@ function getStore(): Storage | undefined {
 export function readSkin(): SkinId {
   try {
     const store = getStore();
-    const stored = store ? store.getItem(KEY) ?? store.getItem(LEGACY_KEY) : null;
+    const stored = store ? store.getItem(KEY) : null;
     if (!isKnownSkinId(stored)) return DEFAULT_SKIN;
     return normalizeSkinId(stored);
   } catch {
@@ -75,7 +74,6 @@ export function applySkin(id: KnownSkinId): void {
   try {
     const store = getStore();
     store?.setItem(KEY, normalized);
-    store?.removeItem(LEGACY_KEY);
   } catch {
     /* quota / private mode — the skin still applies for this session */
   }

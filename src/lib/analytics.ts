@@ -26,12 +26,6 @@ const OPT_IN_KEY = "helmryth.analytics.opt-in.v1";
 const INSTALLED_KEY = "helmryth.install.first-seen.v1";
 const PROFILE_GATE_KEY = "helmryth.onboarding.profile-step.v1";
 
-// Read-only compatibility aliases. We never write these inherited keys. An
-// old opt-out remains an opt-out; an old opt-in never becomes Helmryth consent.
-const LEGACY_OPT_OUT_KEY = "omb-analytics-opt-out"; // brand-check: allow-legacy
-const LEGACY_INSTALLED_KEY = "omb-installed"; // brand-check: allow-legacy
-const LEGACY_PROFILE_GATE_KEY = "omb-email-gate"; // brand-check: allow-legacy
-
 let ready = false;
 let choice: boolean | undefined;
 let activeClient: AnalyticsClient = posthog;
@@ -79,12 +73,7 @@ function analyticsConfig(): { key: string; host: string } | null {
 /** User preference only. A true value still cannot start an unconfigured build. */
 export function analyticsEnabled(): boolean {
   if (choice !== undefined) return choice;
-  const stored = readStorage(OPT_IN_KEY);
-  if (stored !== null) return stored === "1";
-  // Preserve an inherited refusal without treating inherited enablement as
-  // consent for a separately branded product.
-  if (readStorage(LEGACY_OPT_OUT_KEY) === "1") return false;
-  return false;
+  return readStorage(OPT_IN_KEY) === "1";
 }
 
 /** Whether this build has an explicitly configured Helmryth telemetry sink. */
@@ -134,7 +123,7 @@ export function initAnalytics(client: AnalyticsClient = posthog): void {
   ready = true;
 
   const platform = navigator.userAgent.includes("Electron") ? "desktop" : "browser";
-  const installed = readStorage(INSTALLED_KEY) ?? readStorage(LEGACY_INSTALLED_KEY);
+  const installed = readStorage(INSTALLED_KEY);
   if (!installed) {
     writeStorage(INSTALLED_KEY, new Date().toISOString());
     activeClient.capture("app_first_open", { platform });
@@ -153,10 +142,8 @@ export function identifyEmail(_email: string): void {
   // without ever creating a PostHog person or emitting a personal identifier.
 }
 
-// First-run profile-step state. The inherited key is read only so existing
-// installs are not forced back through setup; every new write is Helmryth-owned.
 export function emailGateDone(): boolean {
-  return Boolean(readStorage(PROFILE_GATE_KEY) ?? readStorage(LEGACY_PROFILE_GATE_KEY));
+  return Boolean(readStorage(PROFILE_GATE_KEY));
 }
 
 export function setEmailGateDone(status: "submitted" | "skipped"): void {

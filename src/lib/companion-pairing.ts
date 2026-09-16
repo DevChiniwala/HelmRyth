@@ -59,10 +59,7 @@ export const isHelmrythPairingToken = (token: string): boolean =>
   HELMRYTH_PAIRING_TOKEN.test(token);
 
 /** A pairing window lives for PAIRING_TTL_MS — two minutes — and only this
- * sidecar mints the tokens, so there is exactly one accepted shape. The
- * predecessor product's prefix was carried here for migration and is gone:
- * a token in that form could only be honoured if a build from before the
- * rename had issued it inside the last two minutes. */
+ * sidecar mints the tokens, so there is exactly one accepted shape. */
 export const isAcceptedPairingToken = (token: string): boolean =>
   isHelmrythPairingToken(token);
 

@@ -19,7 +19,7 @@ afterEach(() => {
 const mode = (path: string) => lstatSync(path).mode & 0o777;
 
 describe.skipIf(process.platform === "win32")("private storage modes", () => {
-  it("repairs legacy product storage under umask 022 without changing data", () => {
+  it("repairs legacy storage modes under umask 022 without changing data", () => {
     const previousUmask = process.umask(0o022);
     let root: string;
     try {

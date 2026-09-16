@@ -303,7 +303,7 @@ export const EVENTS_DIR = join(DATA_DIR, "events");
 export const NATIVE_DIR = join(DATA_DIR, "native");
 
 export function ensureDirs() {
-  // Helmryth never moves another product's data implicitly. This also keeps
+  // Helmryth never moves data from outside DATA_DIR implicitly. This also keeps
   // explicit HELMRYTH_DATA_DIR sandboxes from reaching into the real profile.
   // Importing prior data is an explicit, reviewable product action.
   ensurePrivateStorageLayout(DATA_DIR, EVENTS_DIR, NATIVE_DIR);

@@ -129,7 +129,7 @@ The master tagline is **“The work moves. You hold the helm.”** Supporting co
 
 Warm mineral neutrals dominate. Vermilion is command: selected actions, consequential buttons, and the Helmryth mark. Petrol is signal: connected, live, streaming, or focused. Neither accent may become a page background. Semantic fills are pale and bordered; status must also include iconography or text.
 
-Dark mode is not part of the initial Helmryth identity. Do not preserve the inherited Midnight skin or the pixel-sampled Grok palette. Never use pure black, pure white, purple-blue gradients, neon, or glow.
+Dark mode is not part of the initial Helmryth identity. Never use pure black, pure white, purple-blue gradients, neon, or glow.
 
 ## Typography
 

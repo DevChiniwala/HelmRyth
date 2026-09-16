@@ -9,9 +9,8 @@ Please **do not open a public issue** for security problems.
   the Helmryth owners to publish a Helmryth-controlled private security contact before public
   release.
 
-This repository intentionally does not direct reports to a previous maintainer's personal email
-address, and it should never ask researchers to disclose a vulnerability in public issues, pull
-requests, or discussions.
+This repository intentionally does not direct reports to a personal email address, and it should
+never ask researchers to disclose a vulnerability in public issues, pull requests, or discussions.
 
 ## Scope notes for researchers
 

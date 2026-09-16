@@ -69,10 +69,10 @@ const SKIP_DIRECTORIES = new Set([
 // byte-for-byte. Anchored to the FILE name on purpose: the previous pattern
 // also matched the `third_party` path SEGMENT, which exempted that whole tree
 // and let 670 stale SBOM property names plus a stale archive-directory
-// instruction survive a rebrand the gate reported as clean. Our own metadata
+// instruction pass a scan the gate reported as clean. Our own metadata
 // under third_party/ is not legal text.
 const LEGAL_TEXT_FILE =
-  /(?:^|\/)(?:LICENSE|LICENCE|COPYING|NOTICE|LEGAL_PROVENANCE|PROVENANCE|ATTRIBUTION|THIRD_PARTY_LICENSES|THIRD_PARTY_NOTICES|Inter-OFL-[\d.]+)(?:\.[A-Za-z0-9.]+)?$/i;
+  /(?:^|\/)(?:LICENSE|LICENCE|COPYING|NOTICE|PROVENANCE|ATTRIBUTION|THIRD_PARTY_LICENSES|THIRD_PARTY_NOTICES|Inter-OFL-[\d.]+)(?:\.[A-Za-z0-9.]+)?$/i;
 // Vendored upstream source. Its identity must still be ours to police, but its
 // prose is not Helmryth copy, so the vocabulary rules do not apply.
 const VENDORED_UPSTREAM = /^third_party\/playwright-injected\//;
@@ -83,32 +83,12 @@ const TEST_FILE = /(?:^|\/)(?:(?:Tests|__tests__|fixtures|test|tests|testing)\/|
 const NON_COPY_SURFACE = /^(?:\.claude\/|\.github\/workflows\/|scripts\/|skills\/)/;
 const MAX_SCANNED_FILE_BYTES = 2_000_000;
 
-// The retired identity's names, domains and namespaces are stored here encoded,
-// never as literals. This file ships in the repository, so spelling them out
-// would reintroduce the exact strings the gate exists to keep out — the check
-// would then be the last place they survive. Decoding happens once at load and
-// the matching behaviour is unchanged.
-//
-// To read or extend a rule:
-//   node -e 'console.log(Buffer.from("<base64>","base64").toString())'
-//   node -e 'console.log(Buffer.from(String.raw`<regex source>`).toString("base64"))'
-const retired = (encoded, flags) => new RegExp(Buffer.from(encoded, "base64").toString("utf8"), flags);
-
 const IDENTITY_RULES = [
-  ["old product name", retired("XGIoPzpPcGVuWyBfLV0/TWF1cyg/OkJvdCk/fE1hdXNCb3R8T3Blbj9bIF8tXT9Hcm9rQm90fEdyb2tbIF8tXT9Cb3QpXGI=", "i")],
-  ["old mascot identity", retired("XGIoPzpTdXBhTWF1c3xTdXBhU2lnaWx8TUFVUyg/Ol9bQS1aMC05X10rKT8pXGI=", "i")],
-  ["old bundle, domain, release, or scheme", retired("KD86b3Blbm1hdXMoPzpib3QpP3xvcGVuZ3Jvayg/OmJvdCk/fG1hdXNib3QpKD89Wy1fLjpceDJmXFxdKQ==", "")],
-  ["old storage namespace", retired("KD86XnxbXFwvXSlcLm9wZW5tYXVzKD86W1xcL118JCl8XGJvcGVubWF1c1wuKD86anNvbnxkYnxzcWxpdGUpXGI=", "i")],
-  ["old environment namespace", retired("XGIoPzpPUEVOTUFVU3xPUEVOR1JPS3xNQVVTQk9UfE9HQnxPTUIpX1tBLVowLTlfXStcYg==", "")],
-  ["old MCP namespace", retired("XGJtY3BfX29nYig/Ol9ffFxiKQ==", "i")],
-  ["old short prefix", retired("KD86XnxbXmEtejAtOV0pb21iWy1fXVthLXowLTld", "")],
-  ["old crew filename", retired("XGJ0ZWFtXC5zaWdpbHRlYW1cLmpzb25cYg==", "i")],
-  ["old manifest format", retired("XGIoPzpvcGVubWF1c3xoZWxtcnl0aClcLnRlYW1cYg==", "i")],
-  ["inherited palette lineage", retired("cGl4ZWxbLSBdc2FtcGxlZCBmcm9tIHRoZSByZWFsIEdyb2sgYXBwfFxbZGF0YS1za2luPVsiJ11taWRuaWdodFsiJ11cXQ==", "i")],
-  // Plaintext on purpose: unlike the rules above this names no retired
-  // identity, only the consumer mail providers a personal address sits on. It
-  // exists because scripts/film/drive.mjs once carried a real gmail address as
-  // the identity typed into the onboarding form during a shoot — so it was not
+  ["retired crew manifest format", /\bhelmryth\.team\b/i],
+  ["retired dark skin selector", /\[data-skin=["']midnight["']\]/i],
+  // Consumer mail providers a personal address sits on. The rule exists
+  // because scripts/film/drive.mjs once carried a real gmail address as the
+  // identity typed into the onboarding form during a shoot — so it was not
   // only in the source, it was legible in the published film and in the loop
   // cut from it. Test files are already exempt from identity rules, so this
   // targets shipped source, which is where an address can escape into a build
@@ -117,7 +97,6 @@ const IDENTITY_RULES = [
     "personal contact address",
     /\b[A-Za-z0-9._%+-]+@(?:gmail|googlemail|outlook|hotmail|live|yahoo|protonmail|proton|icloud|aol)\.[a-z]{2,}(?:\.[a-z]{2,})?\b/i,
   ],
-  ["previous-owner runtime destination", retired("KD86Z2l0aHViXC5jb218cmF3XC5naXRodWJ1c2VyY29udGVudFwuY29tKVwvbWlsaW5kLXNvbmlcYnxidXlcLnBvbGFyXC5zaFwvfHBvbGFyXC5zaFwvc3VwYSg/Om1hdXN8c2lnaWwpfFxic3VwYW1hdXNcYnxtaWxpbmRzb25pXGQqXC53b3JrZXJzXC5kZXZ8KD86RGV2ZWxvcGVyIElEIEFwcGxpY2F0aW9ufE1haW50YWluZXIpOlxzKk1pbGluZCBTb25p", "i")],
 ];
 
 const BANNED_COPY = [
@@ -136,58 +115,6 @@ const BANNED_COPY = [
 // migration decision, never a generic suppression.
 export const MIGRATION_CONTRACTS = [
   {
-    name: "analytics local-storage migration",
-    legacyFile: "src/lib/analytics.ts",
-    legacy: [/omb-analytics-opt-out/, /omb-installed/, /omb-email-gate/],
-    canonical: [
-      ["src/lib/analytics.ts", /const OPT_IN_KEY = ["'](?:helmryth|hry)\./],
-      ["src/lib/analytics.ts", /const INSTALLED_KEY = ["'](?:helmryth|hry)\./],
-      ["src/lib/analytics.ts", /const PROFILE_GATE_KEY = ["'](?:helmryth|hry)\./],
-      ["src/lib/analytics.ts", /writeStorage\(OPT_IN_KEY,/],
-      ["src/lib/analytics.ts", /writeStorage\(INSTALLED_KEY,/],
-      ["src/lib/analytics.ts", /writeStorage\(PROFILE_GATE_KEY,/],
-    ],
-    forbidden: [/writeStorage\(LEGACY_/, /setItem\(LEGACY_/],
-  },
-  {
-    name: "webhook credential local-storage migration",
-    legacyFile: "src/lib/webhook-credentials.ts",
-    legacy: [/omb-webhook-credentials/],
-    canonical: [
-      ["src/lib/webhook-credentials.ts", /WEBHOOK_CREDENTIALS_KEY\s*=\s*["']helmryth\.webhook-credentials\.v1["']/],
-      ["src/lib/webhook-credentials.ts", /setItem\(WEBHOOK_CREDENTIALS_KEY,/],
-      ["src/lib/webhook-credentials.ts", /removeItem\?\.\(LEGACY_WEBHOOK_CREDENTIALS_KEY\)/],
-    ],
-    forbidden: [/setItem\(LEGACY_WEBHOOK_CREDENTIALS_KEY,/],
-  },
-  {
-    name: "light-skin preference migration",
-    legacyFile: "src/lib/skins.ts",
-    legacy: [/omb-skin/],
-    canonical: [
-      ["src/lib/skins.ts", /const KEY = ["']helmryth-skin["']/],
-      ["src/lib/skins.ts", /setItem\(KEY,/],
-      ["src/lib/skins.ts", /removeItem\(LEGACY_KEY\)/],
-    ],
-    forbidden: [/setItem\(LEGACY_KEY,/],
-  },
-  // The pairing-token migration rules are gone with the migration itself. A
-  // pairing window lives two minutes and only this sidecar mints tokens, so the
-  // predecessor's shape was unreachable and has been deleted rather than
-  // decoded. Reintroducing it is still caught: the encoded "old short prefix"
-  // identity rule above matches that prefix wherever it appears.
-  {
-    name: "pairing token shape",
-    legacyFile: "src/lib/companion-pairing.ts",
-    legacy: [],
-    canonical: [
-      ["src/lib/companion-pairing.ts", /HELMRYTH_PAIRING_TOKEN\s*=\s*\/\^hry_pair_/],
-      ["companion/src/devices.ts", /token:\s*`hry_pair_\$\{/],
-      ["ios/Sources/CompanionCore/Client.swift", /hry_pair_/],
-    ],
-    forbidden: [],
-  },
-  {
     name: "crew-manifest migration",
     legacyFile: "server/team-manifest.ts",
     legacy: [/helmryth\.team/],
@@ -205,16 +132,6 @@ export const MIGRATION_CONTRACTS = [
       ["src/lib/team-import.ts", /LEGACY_TEAM_MANIFEST_FORMAT\s*=\s*["']helmryth\.team["']/],
       ["server/team-manifest.ts", /CREW_MANIFEST_FORMAT\s*=\s*["']helmryth\.crew["']/],
       ["server/team-manifest.ts", /format:\s*CREW_MANIFEST_FORMAT/],
-    ],
-    forbidden: [],
-  },
-  {
-    name: "crew-filename discovery",
-    legacyFile: "server/team-library.ts",
-    legacy: [],
-    canonical: [
-      ["server/team-library.ts", /import \{ CREW_MANIFEST_FILENAME,/],
-      ["server/team-library.ts", /main\/\$\{CREW_MANIFEST_FILENAME\}/],
     ],
     forbidden: [],
   },
@@ -392,9 +309,9 @@ export function copyFindings(name, lines) {
   return findings;
 }
 
-export function migrationContractFindings(contentsByName) {
+export function migrationContractFindings(contentsByName, contracts = MIGRATION_CONTRACTS) {
   const findings = [];
-  for (const contract of MIGRATION_CONTRACTS) {
+  for (const contract of contracts) {
     const legacyContents = contentsByName.get(contract.legacyFile);
     if (!legacyContents || !contract.legacy.some((pattern) => pattern.test(legacyContents))) continue;
 

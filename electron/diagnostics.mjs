@@ -35,6 +35,10 @@ const CREDENTIAL_TOKEN_FORMATS = [
   /\bAKIA[0-9A-Z]{16}\b/g,
   /\bAIza[0-9A-Za-z_-]{30,}/g,
   /\bnpm_[A-Za-z0-9]{20,}/g,
+  /\bglpat-[A-Za-z0-9_-]{20,}/g,
+  /\bpypi-[A-Za-z0-9_-]{48,}/g,
+  /\bbox_(?:live|test|prod)_[A-Za-z0-9_-]{16,}/g,
+  /\bwhsec_[A-Za-z0-9_-]{20,}/g,
 ];
 const KEY_VALUE_PAIR =
   /\b([A-Za-z0-9_.-]*(?:api[_-]?key|apikey|secret|token|password|passwd|authorization|auth[_-]?token|access[_-]?key|private[_-]?key)s?)\s*[:=]\s*("[^"]*"|'[^']*'|[^\s"',;)\]}]+)/gi;

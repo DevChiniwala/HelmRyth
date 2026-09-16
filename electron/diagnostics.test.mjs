@@ -113,6 +113,26 @@ describe("buildDiagnosticsReport", () => {
     expect(report).toContain("«redacted");
   });
 
+  it("keeps diagnostics redaction in parity with the server content-token formats", () => {
+    const alpha = "abcdefghijklmnopqrstuvwxyz0123456789";
+    const values = [
+      `glpat-${alpha}`,
+      `pypi-${alpha}${alpha}`,
+      `box_live_${alpha.slice(0, 20)}`,
+      `box_test_${alpha.slice(0, 20)}`,
+      `box_prod_${alpha.slice(0, 20)}`,
+      `whsec_${alpha}${alpha.slice(0, 8)}`,
+    ];
+    const report = buildDiagnosticsReport({
+      appInfo,
+      configSummary: {},
+      logTail: values.join("\n"),
+    });
+    for (const value of values) {
+      expect(report).not.toContain(value);
+    }
+  });
+
   it.each(["Bearer abcdefghijklmnop", "Basic dXNlcjpwYXNzd29yZA=="])(
     "masks the full Authorization credential for %s",
     (authorization) => {

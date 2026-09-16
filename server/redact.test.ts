@@ -172,6 +172,7 @@ describe("redactSecretsInText", () => {
       [`pypi ${"pypi" + "-"}${alpha}${alpha}`, /pypi-[a-z]/],
       [`box ${"box_" + "live_"}abcdefghijklmnop`, /box_live_[a-z]/],
       [`box ${"box_" + "test_"}ABCDEF0123456789`, /box_test_/],
+      [`box ${"box_" + "prod_"}0123456789abcdef`, /box_prod_/],
       [`webhook ${"whsec" + "_"}${alpha.slice(0, 32)}`, /whsec_[a-z]/],
     ];
     for (const [input, leak] of cases) {

@@ -171,6 +171,7 @@ describe("redactSecretsInText", () => {
       [`gitlab ${"glpat" + "-"}${alpha}`, /glpat-[a-z]/],
       [`pypi ${"pypi" + "-"}${alpha}${alpha}`, /pypi-[a-z]/],
       [`box ${"box_" + "live_"}abcdefghijklmnop`, /box_live_[a-z]/],
+      [`box ${"box_" + "test_"}ABCDEF0123456789`, /box_test_/],
       [`webhook ${"whsec" + "_"}${alpha.slice(0, 32)}`, /whsec_[a-z]/],
     ];
     for (const [input, leak] of cases) {
@@ -227,6 +228,7 @@ describe("redactSecretsInText", () => {
       "box_shadow_none",
       "box_model_border",
       "box_sizing_content",
+      "box_background_color",
       "sk-8", // too short to be a key
     ]) {
       expect(redactSecretsInText(s), s).toBe(s);

@@ -54,7 +54,7 @@ const KEY_PREFIXES: RegExp[] = [
   /\bnpm_[A-Za-z0-9]{20,}/g, // npm
   /\bglpat-[A-Za-z0-9_-]{20,}/g, // gitlab personal access token
   /\bpypi-[A-Za-z0-9_-]{48,}/g, // pypi api token (macaroon payload)
-  /\bbox_[A-Za-z0-9_-]{16,}/g, // ascii.dev box api token
+  /\bbox_(?:live|test|prod)_[A-Za-z0-9_-]{16,}/g, // ascii.dev box api token
   /\bwhsec_[A-Za-z0-9_-]{20,}/g, // helmryth webhook secret
   /\beyJ[A-Za-z0-9_-]{8,}\.[A-Za-z0-9_-]{8,}\.[A-Za-z0-9_-]{8,}\b/g, // jwt
 ];
